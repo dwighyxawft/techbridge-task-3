@@ -1040,11 +1040,413 @@ h1, h2, h3 {
   .banner-actions .btn { width: 100%; }
 }
 
+
+/* ==========================================================
+   TASK 3 ADDITIONS: Internship Tasks page
+   30-day track, roadmap of 8 tasks, difficulty steps.
+   (All layout is flexbox; the track uses absolute positions
+   so each task sits at its true day on a 30-day line.)
+   ========================================================== */
+
+ol { margin: 0; padding: 0; list-style: none; }
+
+.internship-cta { margin-top: 32px; white-space: normal; text-align: center; }
+
+/* ---------- Hero: stat tiles ---------- */
+.stats {
+  flex: 0.95 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 22px 28px;
+  background: var(--navy);
+  border-radius: var(--radius);
+  box-shadow: 0 16px 36px rgba(13, 0, 77, 0.18);
+  color: rgba(255, 255, 255, 0.9);
+}
+.stat-num {
+  flex: none;
+  min-width: 64px;
+  font-size: 2.8rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--green);
+}
+.stat-label { font-weight: 600; font-size: 1.05rem; }
+
+/* ---------- Difficulty pips (4 bars, filled by level) ---------- */
+.level {
+  --pip-off: #d7dae6;
+  --pip-on: var(--green);
+  display: inline-flex;
+  gap: 4px;
+}
+.level i {
+  display: block;
+  width: 22px;
+  height: 7px;
+  border-radius: 4px;
+  background: var(--pip-off);
+}
+.level[data-level="1"] i:nth-child(-n+1),
+.level[data-level="2"] i:nth-child(-n+2),
+.level[data-level="3"] i:nth-child(-n+3),
+.level[data-level="4"] i:nth-child(-n+4) { background: var(--pip-on); }
+
+/* ---------- The 30-day track ---------- */
+.track {
+  padding: clamp(28px, 5vw, 48px) clamp(20px, 4vw, 40px) 28px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+
+/* The line. Every .pin is placed on it with left = (day - 1) / 29 of the width. */
+.track-scale {
+  position: relative;
+  height: 84px;
+  margin-inline: 24px;            /* room for half a circle at each end */
+}
+.track-scale::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 21px;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--green), var(--navy));   /* green (easy) to navy (harder) */
+  transform-origin: left;
+  animation: grow 1.4s ease-out both;
+}
+
+.pin {
+  --ring: var(--white);
+  position: absolute;
+  top: 0;
+  left: calc((var(--d) - 1) / 29 * 100%);
+  transform: translateX(-50%);
+  animation: pop 0.45s calc(0.2s + var(--i) * 0.13s) ease-out both;
+}
+.pin a,
+.pin-end {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+.pin-dot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--navy);
+  background: var(--white);
+  border: 3px solid var(--navy);
+  box-shadow: 0 0 0 5px var(--ring);
+  transition: background-color 0.2s, color 0.2s;
+}
+.pin[data-status="available"] .pin-dot {
+  background: var(--green);
+  border-color: var(--green);
+}
+.pin a:hover .pin-dot { background: var(--navy); border-color: var(--navy); color: var(--white); }
+.pin-end .pin-dot { border-style: dashed; border-color: var(--navy); }
+.pin-end .icon { width: 20px; height: 20px; }
+.pin-day {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--navy);
+  white-space: nowrap;
+}
+.pin-day .short { display: none; }
+
+@keyframes grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes pop {
+  from { opacity: 0; transform: translateX(-50%) scale(0.6); }
+  to   { opacity: 1; transform: translateX(-50%) scale(1); }
+}
+
+.track-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 28px;
+  margin-top: 8px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.track-legend li { display: flex; align-items: center; gap: 10px; }
+.legend-dot {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid var(--navy);
+}
+.legend-on { background: var(--green); border-color: var(--green); }
+.legend-off { background: var(--white); }
+.legend-ramp {
+  flex: none;
+  width: 44px;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--green), var(--navy));
+}
+
+/* ---------- Roadmap: 8 tasks ---------- */
+.roadmap { display: flex; flex-direction: column; }
+
+.stop {
+  display: flex;
+  align-items: stretch;
+  gap: 24px;
+}
+
+/* The rail: a numbered node with a line running down to the next task */
+.stop-rail {
+  flex: none;
+  width: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.stop-node {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  font-size: 1.3rem;
+  font-weight: 800;
+  background: var(--navy);
+  color: var(--white);
+  box-shadow: 0 0 0 5px rgba(57, 184, 10, 0.3);
+}
+.stop[data-status="upcoming"] .stop-node {
+  background: var(--white);
+  color: var(--navy);
+  border: 3px solid var(--navy);
+  box-shadow: none;
+}
+.stop-line {
+  flex: 1 1 auto;
+  width: 3px;
+  margin: 6px 0;
+  border-radius: 2px;
+  background: rgba(13, 0, 77, 0.18);
+}
+.stop:last-child .stop-line { visibility: hidden; }
+
+.stop-card {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  gap: 28px;
+  margin-bottom: 28px;
+  padding: 28px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 2px rgba(13, 0, 77, 0.04);
+  transition: border-color 0.2s;
+}
+.stop-card:hover { border-color: var(--green); }
+.stop[data-status="upcoming"] .stop-card {
+  background: var(--soft);
+  border-style: dashed;
+  border-color: #c9cddd;
+}
+.stop[data-status="upcoming"] .stop-card:hover { border-color: var(--green); }
+.stop:last-child .stop-card { margin-bottom: 0; }
+
+/* Left block of the card: day, status, difficulty */
+.stop-meta {
+  flex: 0 0 210px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-right: 28px;
+  border-right: 1px solid var(--line);
+}
+.stop-day { display: flex; align-items: baseline; gap: 8px; }
+.stop-day-word { font-weight: 700; color: var(--muted); }
+.stop-day-num {
+  font-size: 3.2rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--navy);
+}
+
+.status {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.status-available { background: rgba(57, 184, 10, 0.16); color: #1f6b05; }
+.status-upcoming { background: var(--white); color: var(--muted); border: 1px solid var(--line); }
+.status-upcoming .status-dot { background: transparent; border: 2px solid currentColor; }
+
+.level-wrap { display: flex; flex-direction: column; gap: 8px; }
+.level-text { font-size: 0.92rem; font-weight: 600; color: var(--ink); }
+
+/* Right block of the card: title, description, details */
+.stop-main { flex: 1 1 0; min-width: 0; }
+.task-tag { font-size: 0.9rem; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+.stop-main h3 { font-size: clamp(1.35rem, 2.6vw, 1.7rem); }
+.stop-desc { margin-top: 12px; font-size: 1.05rem; color: var(--muted); max-width: 60ch; }
+
+/* Expandable details (no JavaScript needed) */
+.more {
+  margin-top: 22px;
+  border-top: 1px solid var(--line);
+}
+.more summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 0;
+  font-weight: 700;
+  color: var(--navy);
+  cursor: pointer;
+  list-style: none;
+}
+.more summary::-webkit-details-marker { display: none; }
+.more summary .icon { transition: transform 0.2s; }
+.more[open] summary .icon { transform: rotate(180deg); }
+.more summary:hover { color: var(--green-dark); }
+
+.more-body { padding: 4px 0 6px; }
+.more-body h4 { margin-bottom: 12px; font-size: 1rem; font-weight: 800; color: var(--navy); }
+.more-body .fit-list { margin-bottom: 0; }
+.connects {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: rgba(57, 184, 10, 0.12);
+  border-radius: 12px;
+  font-size: 0.95rem;
+}
+
+/* ---------- Difficulty steps (a staircase) ---------- */
+.steps {
+  display: flex;
+  align-items: flex-end;           /* bottoms line up, tops climb */
+  gap: clamp(12px, 2vw, 20px);
+}
+.step {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.step h3 { font-size: 1.15rem; }
+.step-range { font-weight: 700; color: var(--muted); }
+.step-links { display: flex; flex-direction: column; gap: 6px; margin-top: auto; padding-top: 8px; font-size: 0.95rem; }
+.step a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--green);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.step a:hover { text-decoration-color: currentColor; }
+
+.step-1 { min-height: 220px; }
+.step-2 { min-height: 270px; background: #eaf7e3; border-color: #cfeac3; }
+.step-3 { min-height: 320px; background: var(--navy-soft); border-color: var(--navy-soft); color: rgba(255, 255, 255, 0.92); }
+.step-4 { min-height: 370px; background: var(--navy); border-color: var(--navy); color: rgba(255, 255, 255, 0.92); }
+.step-3 h3, .step-4 h3 { color: var(--white); }
+.step-3 .step-range, .step-4 .step-range { color: rgba(255, 255, 255, 0.75); }
+.step-1 .level, .step-2 .level { --pip-off: #cdd2e0; }
+.step-3 .level, .step-4 .level { --pip-off: rgba(255, 255, 255, 0.22); }
+
+/* ---------- Responsive (Task 3) ---------- */
+@media (max-width: 960px) {
+  .stats { flex: none; }
+
+  /* Roadmap card: meta block moves above the text */
+  .stop-card { flex-direction: column; gap: 20px; }
+  .stop-meta {
+    flex: none;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 20px;
+    padding-right: 0;
+    padding-bottom: 20px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .stop-day-num { font-size: 2.4rem; }
+
+  /* Difficulty steps: two per row, no staircase */
+  .steps { flex-wrap: wrap; align-items: stretch; }
+  .step { flex: 1 1 calc(50% - 20px); min-height: 0; }
+}
+
+@media (max-width: 640px) {
+  .track { padding-inline: 14px; }
+  .track-scale { margin-inline: 14px; height: 74px; }
+  .track-scale::before { top: 14px; }
+  .pin-dot { width: 30px; height: 30px; font-size: 0.85rem; border-width: 2px; box-shadow: 0 0 0 3px var(--ring); }
+  .pin-end .icon { width: 14px; height: 14px; }
+  .pin-day .long { display: none; }
+  .pin-day .short { display: inline; }
+  .pin-day { font-size: 0.72rem; }
+  .pin a, .pin-end { gap: 6px; }
+
+  .stat { padding: 18px 20px; gap: 16px; }
+  .stat-num { min-width: 52px; font-size: 2.3rem; }
+
+  .stop { gap: 14px; }
+  .stop-rail { width: 38px; }
+  .stop-node { width: 38px; height: 38px; font-size: 1rem; box-shadow: 0 0 0 4px rgba(57, 184, 10, 0.3); }
+  .stop-card { padding: 20px; margin-bottom: 20px; }
+
+  .steps { flex-direction: column; }
+  .step { flex: none; }
+}
+
+@media (max-width: 400px) {
+  .pin-dot { width: 26px; height: 26px; font-size: 0.78rem; }
+}
+
 /* ---------- Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .arch { animation: none; stroke-dashoffset: 0; }
   .hangers,
   .arch-nodes { animation: none; opacity: 1; }
+  .pin,
+  .track-scale::before { animation: none; }
   * { transition: none !important; }
 }
